@@ -1,0 +1,29 @@
+[project]
+name = "customer_churn"
+version = "0.0.1"
+authors = [{ name = "archecyn@users.noreply.github.com" }]
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "mlflow",
+    "pandas",
+    "numpy",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "databricks-dlt",
+    "databricks-connect>=15.4,<15.5",
+    "ipykernel",
+]
+
+[project.scripts]
+main = "customer_churn.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120

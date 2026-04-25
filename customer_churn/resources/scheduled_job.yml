@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    customer_churn_scheduled_job:
+      name: customer_churn_scheduled_job
+      schedule:
+        quartz_cron_expression: "0 0 7 ? * *"
+        timezone_id: "Australia/Sydney"
+        pause_status: ${var.pause_status}
+      email_notifications: ${var.job_email_notifications}
+      
+      tags:
+        Description: "Databricks Job"
+        Department: "Analytics"
+        Team: "Data Science"
+        Project: "Customer Churn Prediction"
+        Environment: ${bundle.target}
+        Pipeline: "customer_churn_scheduled_job"
+
+      tasks:
+        - task_key: customer_churn_notebook_task
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ../src/customer-churn.ipynb
+            base_parameters:
+              environment: ${bundle.target}

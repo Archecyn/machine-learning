@@ -1,0 +1,78 @@
+# This is a Databricks asset bundle definition for customer_churn.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: customer_churn
+  uuid: e8f3a2c4-9d1b-4e5a-8c6f-7b2d0a1e9f4c
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+targets:
+  uat:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-xxxxxxxx-xxxx.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: ${workspace.current_user.userName}
+        level: CAN_MANAGE
+
+    variables:
+      cpu_cluster_id_small: xxxx-xxxxxx-xxxxxxxx
+      cpu_cluster_id_medium: xxxx-xxxxxx-xxxxxxxx
+      cpu_cluster_id_large: xxxx-xxxxxx-xxxxxxxx
+      pause_status: "PAUSED"
+      job_email_notifications: # only current user in UAT
+        on_start:
+          - ${workspace.current_user.userName}
+        on_success:
+          - ${workspace.current_user.userName}
+        on_failure:
+          - ${workspace.current_user.userName}
+
+  prd:
+    mode: production
+    workspace:
+      host: https://dbc-xxxxxxxx-xxxx.cloud.databricks.com
+      # We explicitly deploy to the gfs-databricks-terraform-sp user's bundle location.
+      # root_path: /Workspace/Users/3bb2aab9-100f-40c8-90aa-f91c0303a972/.bundle/${bundle.name}/${bundle.target}
+    # run_as:
+    #   service_principal_name: '3bb2aab9-100f-40c8-90aa-f91c0303a972'
+    # Forces the bundle to deploy only with the current main branch
+    # git:
+    #   branch: main
+    permissions:
+      # The Service account - gfs-databricks-terraform-sp
+      - service_principal_name: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        level: CAN_MANAGE
+      - group_name: databrick-production-group
+        level: CAN_MANAGE
+
+    variables:
+      cpu_cluster_id_small: xxxx-xxxxxx-xxxxxxxx
+      cpu_cluster_id_medium: xxxx-xxxxxx-xxxxxxxx
+      cpu_cluster_id_large: xxxx-xxxxxx-xxxxxxxx
+      pause_status: "UNPAUSED"
+      job_email_notifications:
+        on_start:
+          - ${workspace.current_user.userName}
+        on_success:
+          - ${workspace.current_user.userName}
+        on_failure:
+          - ${workspace.current_user.userName}
+
+variables:
+  cpu_cluster_id_1:
+    description: "Cluster ID for default Digital clusters"
+  cpu_cluster_id_small:
+    description: "Cluster ID for small Digital cluster used for continuous batches"
+  cpu_cluster_id_medium:
+    description: "Medium cluster size for Digital Jobs"
+  cpu_cluster_id_large:
+    description: "Large cluster size for Digital jobs"
+  pause_status:
+    description: "Optional job schedule (empty in UAT)"
+  job_email_notifications:
+    description: "Target-specific email notifications"
